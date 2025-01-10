@@ -27,17 +27,17 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserEntity> getAllUser(){
+    public List<UserResponse> getAllUser(){
         return userService.getAllUser();
     }
 
     @GetMapping("/{userId}")
-    public UserEntity getUser(@PathVariable String userId){
+    public UserResponse getUser(@PathVariable String userId){
         return userService.getUser(userId);
     }
 
     @PutMapping("/{userId}")
-    public UserEntity updateUser(@PathVariable String userId, @RequestBody UserUpdationRequest userUpdationRequest){
+    public UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdationRequest userUpdationRequest){
         return userService.updateUser(userId,userUpdationRequest);
     }
 

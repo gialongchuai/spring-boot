@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserEntity {
     @Id

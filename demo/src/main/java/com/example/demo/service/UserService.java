@@ -8,6 +8,7 @@ import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,27 +27,25 @@ public class UserService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        UserResponse userResponse = userMapper.toUserResponse(userCreationRequest);
+        UserEntity userEntity = userMapper.toUserEntity(userCreationRequest);
 
-        return userRepository.save(userResponse);
+        return userMapper.toUserResponse(userRepository.save(userEntity));
     }
 
-    public List<UserEntity> getAllUser(){
-        return userRepository.findAll();
+    public List<UserResponse> getAllUser(){
+        return userMapper.toUsersResponse(userRepository.findAll());
     }
 
-    public UserEntity getUser(String userId){
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+    public UserResponse getUser(String userId){
+        return userMapper.toUserResponse(userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found!")));
     }
 
-    public UserEntity updateUser(String userId, UserUpdationRequest userUpdationRequest) {
-        UserEntity userEntity = getUser(userId);
-        userEntity.setFirstName(userUpdationRequest.getFirstName());
-        userEntity.setLastName(userUpdationRequest.getLastName());
-        userEntity.setPassword(userUpdationRequest.getPassword());
-        userEntity.setDob(userUpdationRequest.getDob());
-
-        return userRepository.save(userEntity);
+    public UserResponse updateUser(String userId, UserUpdationRequest userUpdationRequest) {
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+        userMapper.updateUser(userEntity, userUpdationRequest);
+        return  userMapper.toUserResponse(userRepository.save(userEntity));
     }
 
     public String deleteUser(String userId) {
