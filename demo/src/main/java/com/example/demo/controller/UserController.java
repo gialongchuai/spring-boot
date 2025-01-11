@@ -41,13 +41,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdationRequest userUpdationRequest){
-        return userService.updateUser(userId,userUpdationRequest);
+    public UserResponse updateUser(@PathVariable String userId, @RequestBody @Valid UserUpdationRequest userUpdationRequest){
+        return userService.updateUser(userId, userUpdationRequest);
     }
 
     @DeleteMapping("/{userId}")
     public String deleteUser(@PathVariable String userId){
-
         return userService.deleteUser(userId);
     }
 }

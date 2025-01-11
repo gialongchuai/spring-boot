@@ -1,7 +1,10 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.AuthenticationRequest;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdationRequest;
+import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.dto.response.AuthenticationResponse;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.AppException;
@@ -15,7 +18,8 @@ import lombok.experimental.FieldDefaults;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 @Service
@@ -25,12 +29,16 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
 
+
     public UserResponse saveUser(UserCreationRequest userCreationRequest){
         if(userRepository.existsByUsername(userCreationRequest.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         UserEntity userEntity = userMapper.toUserEntity(userCreationRequest);
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
 
         return userMapper.toUserResponse(userRepository.save(userEntity));
     }
@@ -41,13 +49,18 @@ public class UserService {
 
     public UserResponse getUser(String userId){
         return userMapper.toUserResponse(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found!")));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
     public UserResponse updateUser(String userId, UserUpdationRequest userUpdationRequest) {
         UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         userMapper.updateUser(userEntity, userUpdationRequest);
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        System.out.println(userEntity.getPassword());
         return  userMapper.toUserResponse(userRepository.save(userEntity));
     }
 
