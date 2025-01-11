@@ -5,14 +5,16 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error!"),
-    USER_EXISTED(1002, "User existed!"),
+    USER_EXISTED(1001, "User existed!"),
+    USER_NOT_EXISTED(1002, "User not exist!"),
     USERNAME_INVALID(1003, "Username must be at least 3 characters!"),
-    PASSWORD_INVALID(1004, "Password must be at least 8 characters!"),
-    USER_NOT_EXISTED(1005, "User not exist!");
+    PASSWORD_INVALID(1004, "Password must be at least 8 characters!");
+
     int code;
     String message;
 }
+

@@ -5,6 +5,7 @@ import com.example.demo.dto.request.UserUpdationRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.exception.SuccessCode;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -25,9 +26,10 @@ public class UserController {
 
     @PostMapping
     public ApiResponse<UserResponse> saveUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.saveUser(userCreationRequest));
-        return apiResponse;
+        return ApiResponse.<UserResponse>builder()
+                .code(SuccessCode.SUCCESS_CODE.getCode())
+                .result(userService.saveUser(userCreationRequest))
+                .build();
     }
 
     @GetMapping
@@ -46,7 +48,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable String userId){
-        return userService.deleteUser(userId);
+    public ApiResponse<String> deleteUser(@PathVariable String userId){
+        userService.deleteUser(userId);
+        return  ApiResponse.<String>builder()
+                .code(SuccessCode.SUCCESS_CODE.getCode())
+                .message(SuccessCode.SUCCESS_CODE.getMessage())
+                .build();
     }
 }

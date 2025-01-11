@@ -60,12 +60,11 @@ public class UserService {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        System.out.println(userEntity.getPassword());
+
         return  userMapper.toUserResponse(userRepository.save(userEntity));
     }
 
-    public String deleteUser(String userId) {
+    public void deleteUser(String userId) {
         userRepository.deleteById(userId);
-        return "User has been deleted";
     }
 }
