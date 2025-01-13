@@ -3,8 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.AuthenticationRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.AuthenticationResponse;
+import com.example.demo.enums.SuccessCode;
 import com.example.demo.service.AuthenticationService;
-import com.example.demo.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,11 +31,10 @@ public class AuthenticationController {
 //    }
 
     @PostMapping("/log-in")
-    public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest){
+    public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest){
         return ApiResponse.<AuthenticationResponse>builder()
-                .result(AuthenticationResponse.builder()
-                        .result(authenticationService.login(authenticationRequest))
-                        .build())
+                .code(SuccessCode.SUCCESS_CODE.getCode())
+                .result(authenticationService.authenticate(authenticationRequest))
                 .build();
     }
 }

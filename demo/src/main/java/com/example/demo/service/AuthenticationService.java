@@ -2,49 +2,80 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.AuthenticationRequest;
 import com.example.demo.dto.response.AuthenticationResponse;
-import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.UserRepository;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
 
     @NonFinal
-    protected static final String token = "ac";
+    private static String SINGER_KEY =
+            "8axEpzjNZFefaBJPt0gn4cxaESdRk3fPangsmk3c+77S2iT1czzbaPWoJ2lJ7qlJ";
 
-    public boolean login(AuthenticationRequest authenticationRequest) {
-
+    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
         UserEntity userEntity = userRepository.findByUsername(authenticationRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
-        boolean result = passwordEncoder.matches(authenticationRequest.getPassword(), userEntity.getPassword());
+        boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), userEntity.getPassword());
 
-        if(!result) {
+        if(!authenticated) {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
 
+        String token = generateToken(authenticationRequest.getUsername(), userEntity.getId());
 
-        return passwordEncoder.matches(authenticationRequest.getPassword(), userEntity.getPassword());
+        return AuthenticationResponse.builder()
+                .authenticated(true)
+                .token(token)
+                .build();
     }
 
-    public void gen(){
+    private String generateToken(String username, String userId){
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(username)
+                .issuer("gialongchuai.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .claim("userId", userId) // gửi thêm cái userId cho nó đã
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader,payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SINGER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create token!");
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

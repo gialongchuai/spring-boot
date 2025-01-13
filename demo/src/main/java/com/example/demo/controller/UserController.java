@@ -22,7 +22,7 @@ public class UserController {
     UserService userService;
 
 //    @PostMapping
-//    public ApiResponse<UserResponse> sampleSaveUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
+//    public ApiResponse<UserResponse> sampleAddUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
 //        ApiResponse<UserResponse> userResponseApiResponse = new ApiResponse<>();
 //        userResponseApiResponse.setCode(SuccessCode.SUCCESS_CODE.getCode());
 //        userResponseApiResponse.setResult(userService.saveUser(userCreationRequest));
@@ -30,10 +30,10 @@ public class UserController {
 //    }
 
     @PostMapping
-    public ApiResponse<UserResponse> saveUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
+    public ApiResponse<UserResponse> addUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
         return ApiResponse.<UserResponse>builder()
                 .code(SuccessCode.SUCCESS_CODE.getCode())
-                .result(userService.saveUser(userCreationRequest))
+                .result(userService.addUser(userCreationRequest))
                 .build();
     }
 
