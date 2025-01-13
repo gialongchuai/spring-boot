@@ -37,13 +37,13 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected String SINGER_KEY;
+    protected String SIGNER_KEY;
 
     public IntroSpectResponse introspect(IntroSpectRequest introSpectRequest)
             throws JOSEException, ParseException {
         String token = introSpectRequest.getToken();
 
-        JWSVerifier jwsVerifier = new MACVerifier(SINGER_KEY.getBytes());
+        JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
@@ -65,7 +65,7 @@ public class AuthenticationService {
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), userEntity.getPassword());
 
         if(!authenticated) {
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         String token = generateToken(authenticationRequest.getUsername(), userEntity.getId());
@@ -92,13 +92,12 @@ public class AuthenticationService {
         JWSObject jwsObject = new JWSObject(jwsHeader,payload);
 
         try {
-            jwsObject.sign(new MACSigner(SINGER_KEY.getBytes()));
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Cannot create token!");
             throw new RuntimeException(e);
         }
-
     }
 
 }
