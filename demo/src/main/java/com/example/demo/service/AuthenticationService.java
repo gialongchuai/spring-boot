@@ -1,23 +1,29 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.AuthenticationRequest;
+import com.example.demo.dto.request.IntroSpectRequest;
 import com.example.demo.dto.response.AuthenticationResponse;
+import com.example.demo.dto.response.IntroSpectResponse;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -30,8 +36,25 @@ public class AuthenticationService {
     UserRepository userRepository;
 
     @NonFinal
-    private static String SINGER_KEY =
-            "8axEpzjNZFefaBJPt0gn4cxaESdRk3fPangsmk3c+77S2iT1czzbaPWoJ2lJ7qlJ";
+    @Value("${jwt.signerKey}")
+    protected String SINGER_KEY;
+
+    public IntroSpectResponse introspect(IntroSpectRequest introSpectRequest)
+            throws JOSEException, ParseException {
+        String token = introSpectRequest.getToken();
+
+        JWSVerifier jwsVerifier = new MACVerifier(SINGER_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        boolean verified = signedJWT.verify(jwsVerifier);
+
+        return IntroSpectResponse.builder()
+                .valid(verified && expiryTime.after(new Date()))
+                .build();
+    }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
         UserEntity userEntity = userRepository.findByUsername(authenticationRequest.getUsername())
