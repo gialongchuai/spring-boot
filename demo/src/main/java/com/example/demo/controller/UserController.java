@@ -21,6 +21,14 @@ import java.util.List;
 public class UserController {
     UserService userService;
 
+//    @PostMapping
+//    public ApiResponse<UserResponse> sampleSaveUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
+//        ApiResponse<UserResponse> userResponseApiResponse = new ApiResponse<>();
+//        userResponseApiResponse.setCode(SuccessCode.SUCCESS_CODE.getCode());
+//        userResponseApiResponse.setResult(userService.saveUser(userCreationRequest));
+//        return userResponseApiResponse;
+//    }
+
     @PostMapping
     public ApiResponse<UserResponse> saveUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
         return ApiResponse.<UserResponse>builder()

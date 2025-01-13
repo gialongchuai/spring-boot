@@ -20,6 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
     AuthenticationService authenticationService;
 
+//    @PostMapping("/log-in")
+//    public ApiResponse<AuthenticationResponse> sampleLogin(@RequestBody AuthenticationRequest authenticationRequest){
+//        ApiResponse<AuthenticationResponse> authenticationResponseApiResponse = new ApiResponse<>();
+//        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+//        boolean result = authenticationService.login(authenticationRequest);
+//        authenticationResponse.setResult(result);
+//        authenticationResponseApiResponse.setResult(authenticationResponse);
+//        return authenticationResponseApiResponse;
+//    }
+
     @PostMapping("/log-in")
     public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest){
         return ApiResponse.<AuthenticationResponse>builder()
