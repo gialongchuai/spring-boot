@@ -47,6 +47,7 @@ public class AuthenticationController {
     public ApiResponse<IntroSpectResponse> introspect(@RequestBody IntroSpectRequest introSpectRequest)
             throws ParseException, JOSEException {
         return ApiResponse.<IntroSpectResponse>builder()
+                .code(SuccessCode.SUCCESS_CODE.getCode())
                 .result(authenticationService.introspect(introSpectRequest))
                 .build();
     }

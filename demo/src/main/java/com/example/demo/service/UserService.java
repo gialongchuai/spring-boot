@@ -4,6 +4,7 @@ import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdationRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.enums.Role;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
@@ -14,6 +15,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -22,6 +25,7 @@ import java.util.List;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
 
     public UserResponse addUser(UserCreationRequest userCreationRequest){
         if(userRepository.existsByUsername(userCreationRequest.getUsername())) {
@@ -29,9 +33,11 @@ public class UserService {
         }
 
         UserEntity userEntity = userMapper.toUserEntity(userCreationRequest);
-
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        userEntity.setRoles(roles);
 
         return userMapper.toUserResponse(userRepository.save(userEntity));
     }
@@ -51,7 +57,6 @@ public class UserService {
 
         userMapper.updateUser(userEntity, userUpdationRequest);
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
 
         return  userMapper.toUserResponse(userRepository.save(userEntity));

@@ -22,11 +22,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Service
 @Slf4j
@@ -34,10 +36,11 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
 
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected String SIGNER_KEY;
+    private String SIGNER_KEY;
 
     public IntroSpectResponse introspect(IntroSpectRequest introSpectRequest)
             throws JOSEException, ParseException {
@@ -60,15 +63,13 @@ public class AuthenticationService {
         UserEntity userEntity = userRepository.findByUsername(authenticationRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), userEntity.getPassword());
 
         if(!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        String token = generateToken(authenticationRequest.getUsername(), userEntity.getId());
+        String token = generateToken(userEntity);
 
         return AuthenticationResponse.builder()
                 .authenticated(true)
@@ -76,15 +77,15 @@ public class AuthenticationService {
                 .build();
     }
 
-    private String generateToken(String username, String userId){
+    private String generateToken(UserEntity userEntity){
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(userEntity.getUsername())
                 .issuer("gialongchuai.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .claim("userId", userId) // gửi thêm cái userId cho nó đã
+                .claim("scope", buildScope(userEntity))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -98,6 +99,14 @@ public class AuthenticationService {
             log.error("Cannot create token!");
             throw new RuntimeException(e);
         }
+    }
+
+    private String buildScope(UserEntity userEntity) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(userEntity.getRoles())) {
+            userEntity.getRoles().forEach(stringJoiner::add);
+        }
+        return stringJoiner.toString();
     }
 
 }

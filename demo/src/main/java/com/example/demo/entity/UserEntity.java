@@ -5,10 +5,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -21,4 +23,5 @@ public class UserEntity {
     String username;
     String password;
     LocalDate dob;
+    Set<String> roles;
 }
