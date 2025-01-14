@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import org.springframework.security.access.AccessDeniedException;
+
 @ControllerAdvice
 public class GlobalException {
 
@@ -18,8 +20,8 @@ public class GlobalException {
 //        return ResponseEntity.badRequest().body(apiResponse);
 //    }
 
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRunTimeException(Exception exception){
+    @ExceptionHandler(value = RuntimeException.class)
+    ResponseEntity<ApiResponse> handlingRunTimeException(RuntimeException exception){
         return ResponseEntity.badRequest().body(ApiResponse.builder()
                         .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
                         .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
@@ -28,9 +30,20 @@ public class GlobalException {
 
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handlingAppException(AppException appException){
-        return ResponseEntity.badRequest().body(ApiResponse.builder()
-                        .code(appException.getErrorCode().getCode())
-                        .message(appException.getErrorCode().getMessage())
+        ErrorCode errorCode = appException.getErrorCode();
+        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException accessDeniedException) {
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+
+        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message((errorCode.getMessage()))
                 .build());
     }
 
