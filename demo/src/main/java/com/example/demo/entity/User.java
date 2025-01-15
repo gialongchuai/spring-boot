@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserEntity {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -23,5 +23,7 @@ public class UserEntity {
     String username;
     String password;
     LocalDate dob;
-    Set<String> roles;
+
+    @ManyToMany
+    Set<Role> roles;
 }

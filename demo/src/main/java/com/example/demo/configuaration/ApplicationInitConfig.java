@@ -1,6 +1,6 @@
 package com.example.demo.configuaration;
 
-import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.User;
 import com.example.demo.enums.Role;
 import com.example.demo.repository.UserRepository;
 import lombok.AccessLevel;
@@ -27,13 +27,13 @@ public class ApplicationInitConfig {
             if(userRepository.findByUsername("admin").isEmpty()) {
                 HashSet<String> roles = new HashSet<>();
                 roles.add(Role.ADMIN.name());
-                UserEntity userEntity = UserEntity.builder()
-                        .roles(roles)
+                User user = User.builder()
+                        //.roles(roles)
                         .username("admin")
                         .password(passwordEncoder.encode("admin"))
                         .build();
 
-                userRepository.save(userEntity);
+                userRepository.save(user);
                 log.warn("Admin has been created with default username & password: admin. Please change it!");
             }
         };

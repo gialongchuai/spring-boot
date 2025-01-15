@@ -4,7 +4,7 @@ import com.example.demo.dto.request.AuthenticationRequest;
 import com.example.demo.dto.request.IntroSpectRequest;
 import com.example.demo.dto.response.AuthenticationResponse;
 import com.example.demo.dto.response.IntroSpectResponse;
-import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.User;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.UserRepository;
@@ -19,7 +19,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -60,16 +59,16 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
-        UserEntity userEntity = userRepository.findByUsername(authenticationRequest.getUsername())
+        User user = userRepository.findByUsername(authenticationRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), userEntity.getPassword());
+        boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
 
         if(!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        String token = generateToken(userEntity);
+        String token = generateToken(user);
 
         return AuthenticationResponse.builder()
                 .authenticated(true)
@@ -77,15 +76,15 @@ public class AuthenticationService {
                 .build();
     }
 
-    private String generateToken(UserEntity userEntity){
+    private String generateToken(User user){
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(userEntity.getUsername())
+                .subject(user.getUsername())
                 .issuer("gialongchuai.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .claim("scope", buildScope(userEntity))
+                .claim("scope", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -101,11 +100,11 @@ public class AuthenticationService {
         }
     }
 
-    private String buildScope(UserEntity userEntity) {
+    private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if(!CollectionUtils.isEmpty(userEntity.getRoles())) {
-            userEntity.getRoles().forEach(stringJoiner::add);
-        }
+      //  if(!CollectionUtils.isEmpty(user.getRoles())) {
+        //    user.getRoles().forEach(stringJoiner::add);
+       // }
         return stringJoiner.toString();
     }
 

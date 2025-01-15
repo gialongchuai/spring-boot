@@ -3,7 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdationRequest;
 import com.example.demo.dto.response.UserResponse;
-import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.User;
 import com.example.demo.enums.Role;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
@@ -37,14 +36,14 @@ public class UserService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        UserEntity userEntity = userMapper.toUserEntity(userCreationRequest);
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        User user = userMapper.toUser(userCreationRequest);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-        userEntity.setRoles(roles);
+       // user.setRoles(roles);
 
-        return userMapper.toUserResponse(userRepository.save(userEntity));
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -69,14 +68,14 @@ public class UserService {
     }
 
     public UserResponse updateUser(String userId, UserUpdationRequest userUpdationRequest) {
-        UserEntity userEntity = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateUser(userEntity, userUpdationRequest);
+        userMapper.updateUser(user, userUpdationRequest);
 
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        return  userMapper.toUserResponse(userRepository.save(userEntity));
+        return  userMapper.toUserResponse(userRepository.save(user));
     }
 
     public void deleteUser(String userId) {
