@@ -33,7 +33,7 @@ public class UserController {
 //    }
 
     @PostMapping
-    public ApiResponse<UserResponse> addUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
+    ApiResponse<UserResponse> addUser(@RequestBody @Valid UserCreationRequest userCreationRequest){
         return ApiResponse.<UserResponse>builder()
                 .code(SuccessCode.SUCCESS_CODE.getCode())
                 .result(userService.addUser(userCreationRequest))
@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponse> getAllUser(){
+    List<UserResponse> getAllUser(){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Username: {}", authentication.getName());
@@ -51,22 +51,22 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserResponse getUser(@PathVariable String userId){
+    UserResponse getUser(@PathVariable String userId){
         return userService.getUser(userId);
     }
 
     @GetMapping("/myinfo")
-    public UserResponse getMyInfo(){
+    UserResponse getMyInfo(){
         return userService.getMyInfo();
     }
 
     @PutMapping("/{userId}")
-    public UserResponse updateUser(@PathVariable String userId, @RequestBody @Valid UserUpdationRequest userUpdationRequest){
+    UserResponse updateUser(@PathVariable String userId, @RequestBody @Valid UserUpdationRequest userUpdationRequest){
         return userService.updateUser(userId, userUpdationRequest);
     }
 
     @DeleteMapping("/{userId}")
-    public ApiResponse<String> deleteUser(@PathVariable String userId){
+    ApiResponse<String> deleteUser(@PathVariable String userId){
         userService.deleteUser(userId);
         return  ApiResponse.<String>builder()
                 .code(SuccessCode.SUCCESS_CODE.getCode())

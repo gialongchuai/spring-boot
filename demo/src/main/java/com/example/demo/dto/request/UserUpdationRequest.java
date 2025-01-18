@@ -1,10 +1,13 @@
 package com.example.demo.dto.request;
 
+import com.example.demo.entity.Role;
+import com.example.demo.validator.DobConstraint;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -18,5 +21,9 @@ public class UserUpdationRequest {
 
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
+
+    @DobConstraint(min = 3, message = "INVALID_DOB")
     LocalDate dob;
+
+    Set<String> roles;
 }

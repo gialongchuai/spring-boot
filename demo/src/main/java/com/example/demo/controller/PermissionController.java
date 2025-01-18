@@ -20,16 +20,18 @@ import java.util.List;
 public class PermissionController {
     PermissionService permissionService;
 
-    @PostMapping("/create")
+    @PostMapping
     ApiResponse<PermissionResponse> create(@RequestBody PermissionRequest permissionRequest) {
         return ApiResponse.<PermissionResponse>builder()
                 .result(permissionService.create(permissionRequest))
                 .build();
     }
 
-    @GetMapping()
-    List<PermissionResponse> getPermissions() {
-        return permissionService.getPermissions().stream().toList();
+    @GetMapping
+    ApiResponse<List<PermissionResponse>> getPermissions() {
+        return ApiResponse.<List<PermissionResponse>>builder()
+                .result(permissionService.getPermissions())
+                .build();
     }
 
     @DeleteMapping("/{permissionName}")

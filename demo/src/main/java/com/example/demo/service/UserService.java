@@ -2,12 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdationRequest;
+import com.example.demo.dto.response.RoleResponse;
 import com.example.demo.dto.response.UserResponse;
+import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
-import com.example.demo.enums.Role;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
+import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
 
     public UserResponse addUser(UserCreationRequest userCreationRequest){
         if(userRepository.existsByUsername(userCreationRequest.getUsername())) {
@@ -39,14 +43,16 @@ public class UserService {
         User user = userMapper.toUser(userCreationRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-       // user.setRoles(roles);
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.builder()
+                        .name(com.example.demo.enums.Role.USER.name())
+                .build());
+        user.setRoles(roles);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public List<UserResponse> getAllUser(){
         log.info("I am joining in method (getAllUser)!");
         return userMapper.toUsersResponse(userRepository.findAll());
@@ -59,7 +65,7 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
-    // chỉ cần kèm theo 1 token thì sẽ cho biết info người gửi thông qua token
+    // chỉ cần kèm theo 1 token thì sẽ cho biết info người gửi thông qua token, từ name đó được lấy từ sub: ví dụ sub có admin thì tìm username admin.
     public UserResponse getMyInfo(){
         var context = SecurityContextHolder.getContext();
         var name = context.getAuthentication().getName();
@@ -75,7 +81,9 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        return  userMapper.toUserResponse(userRepository.save(user));
+        user.setRoles(new HashSet<>(roleRepository.findAllById(userUpdationRequest.getRoles())));
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     public void deleteUser(String userId) {

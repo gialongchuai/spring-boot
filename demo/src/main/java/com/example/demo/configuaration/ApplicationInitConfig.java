@@ -1,7 +1,7 @@
 package com.example.demo.configuaration;
 
+import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
-import com.example.demo.enums.Role;
 import com.example.demo.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,14 +22,17 @@ import java.util.HashSet;
 public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
+    // code mặc định run ứng nếu không thấy tài khoản admin thì mặc định tạo tài khoản (focus log)
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
             if(userRepository.findByUsername("admin").isEmpty()) {
-                HashSet<String> roles = new HashSet<>();
-                roles.add(Role.ADMIN.name());
+                Set<Role> roles = new HashSet<>();
+                roles.add(Role.builder()
+                                .name(com.example.demo.enums.Role.ADMIN.name())
+                        .build());
                 User user = User.builder()
-                        //.roles(roles)
+                        .roles(roles)
                         .username("admin")
                         .password(passwordEncoder.encode("admin"))
                         .build();

@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -64,10 +65,12 @@ public class AuthenticationService {
 
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
 
+        // không đúng username và pass để xác thực thì quăng lỗi
         if(!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
+        // đúng rồi thì tạo cho 1 cái token để có thể thực hiện nhiều request và phải kèm theo token
         String token = generateToken(user);
 
         return AuthenticationResponse.builder()
@@ -76,15 +79,18 @@ public class AuthenticationService {
                 .build();
     }
 
+    // nhận user người dùng để tạo token, do post user là mặc định được public nên được phép tạo user thoải mái
+    // và sau khi tạo thaành công user thì mặc định người đó có role: USER (enum default)
     private String generateToken(User user){
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
+                .subject(user.getUsername()) // ở đây để sub là username để qua bên kia getInfo thì lấy cái sub này mà tra
                 .issuer("gialongchuai.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .claim("scope", buildScope(user))
+                .jwtID(UUID.randomUUID().toString())
+                .claim("scope", buildScope(user)) // dùng enum USER mặc định để build scope
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -102,9 +108,18 @@ public class AuthenticationService {
 
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-      //  if(!CollectionUtils.isEmpty(user.getRoles())) {
-        //    user.getRoles().forEach(stringJoiner::add);
-       // }
+        if(!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> {
+                stringJoiner.add("ROLE_" + role.getName()); // với mỗi role thì add cái role đó vào scopy
+                if(!CollectionUtils.isEmpty(role.getPermissions())) {
+                    role.getPermissions().forEach(permission ->
+                                    stringJoiner.add(permission.getName()) // đồng thời add thêm cái role
+                            // có những permissionName thì add luôn (ví dụ admin thì ngoài)
+                            // add admin thì add luôn mấy cái permission của admin như (CRUD) ...
+                    );
+                }
+            });
+        }
         return stringJoiner.toString();
     }
 
