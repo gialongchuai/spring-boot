@@ -55,7 +55,9 @@ public class UserService {
     @PreAuthorize("hasRole('USER')")
     public List<UserResponse> getAllUser(){
         log.info("I am joining in method (getAllUser)!");
-        return userMapper.toUsersResponse(userRepository.findAll());
+        //return userMapper.toUsersResponse(userRepository.findAll());
+        var users = userRepository.findAll();
+        return users.stream().map(userMapper::toUserResponse).toList();
     }
 
     @PostAuthorize("hasRole('ADMIN')")

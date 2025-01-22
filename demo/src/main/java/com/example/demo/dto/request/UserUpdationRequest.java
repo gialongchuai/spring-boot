@@ -22,7 +22,7 @@ public class UserUpdationRequest {
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
 
-    @DobConstraint(min = 3, message = "INVALID_DOB")
+    @DobConstraint(min = 18, message = "INVALID_DOB")
     LocalDate dob;
 
     Set<String> roles;

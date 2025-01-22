@@ -26,10 +26,10 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users","/auth/introspect","/auth/token"};
+    private final String[] PUBLIC_ENDPOINTS =
+            {"/users","/auth/introspect","/auth/token", "/auth/logout", "/auth/refresh"};
 
-    @Value("${jwt.signerKey}")
-    private String signerKey;
+    CustomJwtDecoder customJwtDecoder;
 
     // những end point có thể vào và ngoài ra phải xác thực (authenticated) và bên dưới là yêu cầu xác thực
     @Bean
@@ -42,7 +42,7 @@ public class SecurityConfig {
         // có nghĩa là muốn request thì phải có token, còn nếu không có token thì phải tạo token (tạo phải có username và pass phải được passed)
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
+                        jwtConfigurer.decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
                                 // code trên này để xử lý với exception ở các tầng filterChain
@@ -60,15 +60,6 @@ public class SecurityConfig {
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
     }
 
     @Bean

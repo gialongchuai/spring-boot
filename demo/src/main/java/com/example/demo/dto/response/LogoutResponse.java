@@ -1,14 +1,14 @@
-package com.example.demo.dto.request;
+package com.example.demo.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Setter
 @Getter
-@Builder
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LogoutRequest {
-    String token;
+public class LogoutResponse {
+    String status;
 }

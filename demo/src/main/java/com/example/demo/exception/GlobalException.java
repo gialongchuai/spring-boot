@@ -18,13 +18,13 @@ import java.util.Objects;
 @Slf4j
 public class GlobalException {
 
-//    @ExceptionHandler(value = Exception.class)
-//    ResponseEntity<ApiResponse> sampleHandlingRunTimeException(RuntimeException runtimeException){
-//        ApiResponse apiResponse = new ApiResponse();
-//        apiResponse.setCode(ErrorCode.UNAUTHENTICATED.getCode());
-//        apiResponse.setMessage(ErrorCode.UNAUTHENTICATED.getMessage());
-//        return ResponseEntity.badRequest().body(apiResponse);
-//    }
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiResponse> sampleHandlingRunTimeException(Exception exception){
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(ErrorCode.UNAUTHENTICATED.getCode());
+        apiResponse.setMessage(ErrorCode.UNAUTHENTICATED.getMessage());
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
 
 //    @ExceptionHandler(value = RuntimeException.class)
 //    ResponseEntity<ApiResponse> handlingRunTimeException(RuntimeException runtimeException){
@@ -86,8 +86,6 @@ public class GlobalException {
 
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
 
-
-
             log.info(attributes.toString());
         } catch (Exception e){
 
@@ -101,8 +99,8 @@ public class GlobalException {
                 .build());
     }
 
-    private String mapAttribute(String message, Map<String,Object> atrributes) {
-        String minValue = String.valueOf(atrributes.get(MIN_ATTRIBUTE));
+    private String mapAttribute(String message, Map<String,Object> attributes) {
+        String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
 
         return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
     }

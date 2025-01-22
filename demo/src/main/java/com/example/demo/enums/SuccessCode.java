@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum SuccessCode {
-    SUCCESS_CODE(1000, "Deleted Successfully!");
+    SUCCESS_CODE(1000, "Successfully!");
 
     int code;
     String message;

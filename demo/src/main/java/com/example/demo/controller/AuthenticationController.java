@@ -2,9 +2,12 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.AuthenticationRequest;
 import com.example.demo.dto.request.IntroSpectRequest;
+import com.example.demo.dto.request.LogoutRequest;
+import com.example.demo.dto.request.RefreshTokenRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.AuthenticationResponse;
 import com.example.demo.dto.response.IntroSpectResponse;
+import com.example.demo.dto.response.LogoutResponse;
 import com.example.demo.enums.SuccessCode;
 import com.example.demo.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
@@ -49,6 +52,25 @@ public class AuthenticationController {
         return ApiResponse.<IntroSpectResponse>builder()
                 .code(SuccessCode.SUCCESS_CODE.getCode())
                 .result(authenticationService.introspect(introSpectRequest))
+                .build();
+    }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestBody LogoutRequest logoutRequest)
+            throws ParseException, JOSEException {
+        authenticationService.logout(logoutRequest);
+        return ApiResponse.<Void>builder()
+                .code(SuccessCode.SUCCESS_CODE.getCode())
+                .message(SuccessCode.SUCCESS_CODE.getMessage())
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request)
+            throws ParseException, JOSEException {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(SuccessCode.SUCCESS_CODE.getCode())
+                .result(authenticationService.refreshToken(request))
                 .build();
     }
 }
