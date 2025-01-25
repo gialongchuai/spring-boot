@@ -93,22 +93,18 @@ public class AuthenticationService {
     }
 
     public void logout(LogoutRequest logoutRequest) throws ParseException, JOSEException {
-        try {
-            SignedJWT signToken = verifyToken(logoutRequest.getToken(),true);
+        SignedJWT signToken = verifyToken(logoutRequest.getToken(),true);
 
-            String jti = signToken.getJWTClaimsSet().getJWTID();
+        String jti = signToken.getJWTClaimsSet().getJWTID();
 
-            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
-            InvalidatedToken invalidatedToken = InvalidatedToken.builder()
-                    .id(jti)
-                    .expiryTime(expiryTime)
-                    .build();
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jti)
+                .expiryTime(expiryTime)
+                .build();
 
-            invalidatedTokenRepository.save(invalidatedToken);
-        } catch (JOSEException e){
-            log.info("Token already expired");
-        }
+        invalidatedTokenRepository.save(invalidatedToken);
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest request)
@@ -168,7 +164,7 @@ public class AuthenticationService {
                 .subject(user.getUsername()) // ở đây để sub là username để qua bên kia getInfo thì lấy cái sub này mà tra
                 .issuer("gialongchuai.com")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.HOURS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user)) // dùng enum USER mặc định để build scope
                 .build();
