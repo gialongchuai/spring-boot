@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdationRequest;
-import com.example.demo.dto.response.RoleResponse;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
@@ -35,7 +34,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
 
-    public UserResponse addUser(UserCreationRequest userCreationRequest){
+    public UserResponse createUser(UserCreationRequest userCreationRequest){
         if(userRepository.existsByUsername(userCreationRequest.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
