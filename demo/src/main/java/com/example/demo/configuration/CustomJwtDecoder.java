@@ -1,4 +1,4 @@
-package com.example.demo.configuaration;
+package com.example.demo.configuration;
 
 import com.example.demo.dto.request.IntroSpectRequest;
 import com.example.demo.service.AuthenticationService;
