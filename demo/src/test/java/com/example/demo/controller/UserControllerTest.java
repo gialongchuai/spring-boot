@@ -79,4 +79,28 @@ public class UserControllerTest {
         );
         // THEN
     }
+
+    @Test
+    void createUser_usernameInvalid_fail() throws Exception {
+        // GIVEN
+        userCreationRequest.setUsername("joe");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        String content = objectMapper.writeValueAsString(userCreationRequest);
+
+        Mockito.when(userService.createUser(ArgumentMatchers.any()))
+                .thenReturn(userResponse);
+        // WHEN
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/users")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(content))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("code")
+                        .value(1003))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Username must be at least 4 characters!")
+                );
+        // THEN
+    }
 }
