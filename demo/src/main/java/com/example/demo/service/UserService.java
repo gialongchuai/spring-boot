@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,10 +38,6 @@ public class UserService {
     RoleRepository roleRepository;
 
     public UserResponse createUser(UserCreationRequest userCreationRequest) {
-        if (userRepository.existsByUsername(userCreationRequest.getUsername())) {
-            throw new AppException(ErrorCode.USER_EXISTED);
-        }
-
         User user = userMapper.toUser(userCreationRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -48,10 +45,16 @@ public class UserService {
         roles.add(Role.builder().name(com.example.demo.enums.Role.USER.name()).build());
         user.setRoles(roles);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getAllUser() {
         log.info("I am joining in method (getAllUser)!");
         // return userMapper.toUsersResponse(userRepository.findAll());
@@ -59,7 +62,7 @@ public class UserService {
         return users.stream().map(userMapper::toUserResponse).toList();
     }
 
-    @PostAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("hasRole('USER')")
     public UserResponse getUser(String userId) {
         log.info("I am joining in method (getUser)!");
         return userMapper.toUserResponse(
