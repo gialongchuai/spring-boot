@@ -1,0 +1,5 @@
+jwt:
+  signerKey: "W/WaSlk1U1DhNFBIDAlzLew73esqDoolM1jPxbD8y/KvkVVzC/Domq6Mw+V6vnu/"
+  valid-duration: 3600 # in sencond
+  refreshable-duration: 36000 # in second
+

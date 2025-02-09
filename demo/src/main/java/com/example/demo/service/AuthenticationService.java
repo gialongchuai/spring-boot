@@ -130,6 +130,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
+        log.info("Signer Key: " + SIGNER_KEY);
         User user = userRepository
                 .findByUsername(authenticationRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
