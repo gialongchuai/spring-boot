@@ -1,10 +1,10 @@
 package com.example.demo.exception;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @AllArgsConstructor
@@ -23,4 +23,3 @@ public enum ErrorCode {
     String message;
     HttpStatusCode httpStatusCode;
 }
-

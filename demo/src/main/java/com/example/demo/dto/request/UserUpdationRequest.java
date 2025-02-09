@@ -1,13 +1,14 @@
 package com.example.demo.dto.request;
 
-import com.example.demo.entity.Role;
-import com.example.demo.validator.DobConstraint;
-import jakarta.validation.constraints.Size;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
 import java.util.Set;
+
+import jakarta.validation.constraints.Size;
+
+import com.example.demo.validator.DobConstraint;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Setter
 @Getter

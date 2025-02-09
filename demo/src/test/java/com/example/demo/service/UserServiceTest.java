@@ -1,10 +1,13 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.request.UserCreationRequest;
-import com.example.demo.dto.response.UserResponse;
-import com.example.demo.entity.User;
-import com.example.demo.exception.AppException;
-import com.example.demo.repository.UserRepository;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,13 +17,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.LocalDate;
-import java.util.Optional;
+import com.example.demo.dto.request.UserCreationRequest;
+import com.example.demo.dto.response.UserResponse;
+import com.example.demo.entity.User;
+import com.example.demo.exception.AppException;
+import com.example.demo.repository.UserRepository;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource("/test.properties")
 public class UserServiceTest {
@@ -36,8 +38,8 @@ public class UserServiceTest {
     private User user;
 
     @BeforeEach
-    void initData(){
-        dob = LocalDate.of(1990, 12,1);
+    void initData() {
+        dob = LocalDate.of(1990, 12, 1);
 
         userCreationRequest = UserCreationRequest.builder()
                 .username("joebye")
@@ -65,7 +67,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_validRequest_success(){
+    void createUser_validRequest_success() {
         // GIVEN
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.save(any())).thenReturn(user);
@@ -79,7 +81,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_userExisted_fail(){
+    void createUser_userExisted_fail() {
         // GIVEN
         when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
@@ -91,7 +93,7 @@ public class UserServiceTest {
 
     @Test
     @WithMockUser(username = "joebye")
-    void getMyInfo_valid_success(){
+    void getMyInfo_valid_success() {
         // GIVEN
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 
@@ -104,7 +106,7 @@ public class UserServiceTest {
 
     @Test
     @WithMockUser(username = "joebye")
-    void getMyInfo_notFoundUser_fail(){
+    void getMyInfo_notFoundUser_fail() {
         // GIVEN
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.ofNullable(null));
 

@@ -1,17 +1,18 @@
 package com.example.demo.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.example.demo.dto.request.PermissionRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.PermissionResponse;
-import com.example.demo.entity.Permission;
 import com.example.demo.enums.SuccessCode;
 import com.example.demo.service.PermissionService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,7 +45,8 @@ public class PermissionController {
     }
 
     @PutMapping("/{permissionName}")
-    ApiResponse<PermissionResponse> updatePermission(@PathVariable String permissionName, @RequestBody PermissionRequest permissionRequest) {
+    ApiResponse<PermissionResponse> updatePermission(
+            @PathVariable String permissionName, @RequestBody PermissionRequest permissionRequest) {
         return ApiResponse.<PermissionResponse>builder()
                 .result(permissionService.updatePermission(permissionName, permissionRequest))
                 .build();
